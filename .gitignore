@@ -1,0 +1,53 @@
+# Environment and configuration
+.env
+.env.local
+.env.production
+config.local.json
+
+# Data and logs
+/data/
+/logs/
+*.log
+
+# Generated reports
+/reports/
+*.html
+*.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+.coverage
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Dependencies
+node_modules/
+*.egg-info/
+dist/
+build/
