@@ -165,6 +165,36 @@ def run_analysis_background(days_back):
         })
         
         # Store result
+        activity_patterns = result.get('activity_patterns', {})
+        engagement_metrics = result.get('engagement_metrics', {})
+        burnout_alerts = result.get('burnout_alerts', {})
+        
+        # Calculate additional metrics
+        total_reactions = sum(
+            channel_data.get('total_reactions', 0) 
+            for channel_data in engagement_metrics.get('by_channel', {}).values()
+        )
+        
+        # Calculate average thread participation
+        thread_participation = 0
+        channel_count = len(engagement_metrics.get('by_channel', {}))
+        if channel_count > 0:
+            thread_participation = sum(
+                channel_data.get('total_messages', 0) * 0.1  # Estimate based on engagement
+                for channel_data in engagement_metrics.get('by_channel', {}).values()
+            ) / channel_count
+        
+        # Determine overall risk level
+        risk_level = 'LOW'
+        if burnout_alerts:
+            high_risk_count = sum(1 for alert in burnout_alerts.values() if alert.get('risk_level') == 'high')
+            medium_risk_count = sum(1 for alert in burnout_alerts.values() if alert.get('risk_level') == 'medium')
+            
+            if high_risk_count > 0:
+                risk_level = 'HIGH'
+            elif medium_risk_count > 0:
+                risk_level = 'MEDIUM'
+        
         current_analysis = {
             'timestamp': datetime.now().isoformat(),
             'days_analyzed': days_back,
@@ -175,7 +205,17 @@ def run_analysis_background(days_back):
                 'channels_analyzed': result.get('analysis_metadata', {}).get('channels_analyzed', []),
                 'burnout_alerts': len(result.get('burnout_alerts', {})),
                 'sentiment_distribution': result.get('engagement_summary', {}).get('sentiment_distribution', {}),
-                'report_paths': result.get('report_paths', [])
+                'report_paths': result.get('report_paths', []),
+                # Additional metrics for enhanced dashboard
+                'total_reactions': total_reactions,
+                'thread_participation': thread_participation,
+                'peak_hour': activity_patterns.get('peak_hour', 'N/A'),
+                'peak_day': activity_patterns.get('peak_day', 'N/A'),
+                'risk_level': risk_level,
+                'recommendations': result.get('recommendations', []),
+                'weekly_patterns': result.get('sentiment_analysis', {}).get('weekly_patterns', {}),
+                'channel_breakdown': engagement_metrics.get('by_channel', {}),
+                'burnout_details': burnout_alerts
             },
             'raw_data': result
         }
